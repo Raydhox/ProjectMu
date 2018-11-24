@@ -11,7 +11,7 @@ import db
 #Char
 class Char:
 	
-	def __init__(self, fenetre, x, y, couleur, nom, vitesse=2, relief=1):
+	def __init__(self, fenetre, x, y, couleur, nom, vitesse=4, relief=1):
 		"""Où 'canvas' le nom du Canvas,
 'x' et 'y' les coordonnées du char,
 nom, un tuple sous la forme:nom = ('nom', x, y, couleur)"""
@@ -60,11 +60,46 @@ nom, un tuple sous la forme:nom = ('nom', x, y, couleur)"""
 		draw.line(fenetre, db.BLACK, (self.char_x+16, self.char_y+16), (self.canon_x, self.canon_y), 5 )
 		#Le pivot
 		draw.ellipse(fenetre, db.BLACK, (self.char_x+6, self.char_y+6, 20, 20) )
-		draw.ellipse(fenetre, db.YELLOW, (self.char_x+11, self.char_y+11, 10, 10) )
+		draw.ellipse(fenetre, db.YELLOW, (self.char_x+12, self.char_y+12, 8, 8) )
+	
+	def change_dir(self, event):
+		#Active la direction (pour le rang, voir clavier numérique)
+		if (event == 'Down'):
+			self.dir[0] = True
+		elif (event == 'Left'):
+			self.dir[1] = True
+		elif (event == 'Up'):
+			self.dir[2] = True
+		elif (event == 'Right'):
+			self.dir[3] = True
+			
+	def stop_dir(self, event):
+		#Désactive la direction (pour le rang, voir clavier numérique)
+		if (event == 'Down'):
+			self.dir[0] = False
+		if (event == 'Left'):
+			self.dir[1] = False
+		if (event == 'Up'):
+			self.dir[2] = False
+		if (event == 'Right'):
+			self.dir[3] = False
+			
+	def mouvement_char(self):
+		#Change la direction
+		if self.dir[0]:
+			self.char_y += self.vitesse
+		if self.dir[1]:
+			self.char_x -= self.vitesse
+		if self.dir[2]:
+			self.char_y -= self.vitesse
+		if self.dir[3]:
+			self.char_x += self.vitesse
 		
 
 #On affiche la fenêtre
-fenetre = display.set_mode( (26*db.TILE, 16*db.TILE) )
+##fenetre = display.set_mode( (0, 0), FULLSCREEN )
+longueur, largeur = 32*db.TILE, 20*db.TILE
+fenetre = display.set_mode( (longueur, largeur) )
 display.set_caption("Char")
 
 init()
@@ -75,7 +110,7 @@ Joueur1 = Char( fenetre, 32, 32, db.YELLOW, ('Joueur', 60, 20, 'White') )
 while continuer:
     time.Clock().tick(30)
 
-    draw.rect(fenetre, db.NAVAJOWHITE, (0, 0, 40*db.TILE, 30*db.TILE) )
+    draw.rect(fenetre, db.NAVAJOWHITE, (0, 0, longueur, largeur) )
     Joueur1.afficher(fenetre)
     #fond = pygame.image.load('background.png').convert()
     #fenetre.blit(fond, (0, 0))
@@ -90,13 +125,27 @@ while continuer:
             """Touches clavier"""
             #=========Tileset=========#
             if (touche.key == K_z) or (touche.key == K_a):
-                Joueur1.char_y -= 16
+                Joueur1.change_dir('Up')
             elif (touche.key == K_q) or (touche.key == K_w):
-                Joueur1.char_x -= 16
+                Joueur1.change_dir('Left')
             elif (touche.key == K_s):
-                Joueur1.char_y += 16
+                Joueur1.change_dir('Down')
             elif (touche.key == K_d):
-                Joueur1.char_x += 16
+                Joueur1.change_dir('Right')
+            if (touche.key == K_ESCAPE):
+                continuer = 0
+        if touche.type == KEYUP:
+            """Touches clavier"""
+            #=========Tileset=========#
+            if (touche.key == K_z) or (touche.key == K_a):
+                Joueur1.stop_dir('Up')
+            elif (touche.key == K_q) or (touche.key == K_w):
+                Joueur1.stop_dir('Left')
+            elif (touche.key == K_s):
+                Joueur1.stop_dir('Down')
+            elif (touche.key == K_d):
+                Joueur1.stop_dir('Right')
+    Joueur1.mouvement_char()
 
 
 
